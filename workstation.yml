@@ -1,5 +1,5 @@
-- name: verify the compliance
-    hosts: workstation
-    roles:
-      - secure_banners
-    become: true
+- name: set compliant banners
+  hosts: workstation
+  roles:
+    - secure_banners
+  become: true
