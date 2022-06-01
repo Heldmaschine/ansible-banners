@@ -2,7 +2,7 @@
 
 Playbooks add a secure_banners role which handles files.  
 As an example playbook workstation.yml applies this role and accompanying tasks to hosts in [workstation] group.  
-Assumtions taken:  
+Assumptions taken:  
 - All hosts are already setup with ansible and ssh keys 
 - We already have passwordless sudo on hosts 
 - Banners should be the same on all [workstation] members
