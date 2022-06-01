@@ -1,0 +1,5 @@
+- name: verify the compliance
+    hosts: workstation
+    roles:
+      - secure_banners
+    become: true

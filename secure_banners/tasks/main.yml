@@ -1,0 +1,29 @@
+- name: set copmpliant motd file
+    template:
+      src: motd.j2
+      dest: /etc/motd
+      owner: root
+      group: root
+      mode: u=rw,g=r,o=r
+      tags:
+       - motd_conf
+
+- name: set copmpliant issue file
+    template:
+      src: issue.j2
+      dest: /etc/issue
+      owner: root
+      group: root
+      mode: u=rw,g=r,o=r      
+      tags:
+       - issue_conf
+
+- name: set copmpliant issue.net file
+    template:
+      src: issue.net.j2
+      dest: /etc/issue.net
+      owner: root
+      group: root
+      mode: u=rw,g=r,o=r      
+      tags:
+       - issue.net_conf
