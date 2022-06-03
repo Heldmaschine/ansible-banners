@@ -8,32 +8,27 @@
         stat:
           path: /etc/motd
         register: res
-        tags: 
-          - audit
-          - permissions
 
-      - name: Warn if we do not find MOTD
-        debug: 
+      - name: Fail if we do not find MOTD
+        fail: 
           msg: MOTD not present!
         when: not res.stat.exists
 
-      - name: check for invalid contents
+      - name: Fail if contents are invalid
         command: >
           grep -E -i "(\\\v|\\\r|\\\m|\\\s|$(grep '^ID=' /etc/os-release | cut -d= -f2 | sed -e 's/\"//g'))" /etc/motd
         register: motd_c
-        when: res.stat.exists
         failed_when: motd_c.stdout != ""
-        tags:
-          - audit
-
-      - name: Warn if we find invalid contents
-        debug:
-          msg: "MOTD contains following illegal symbols {{motd_c.stdout}}"
-        when: motd_c.stdout != ""
       
       rescue:
         - debug:
-            msg: "Rescue triggered with {{res}}"
+            msg: |
+              Audit found following:
+              {% if res.stat.exists %}
+                Your motd contents are not compliant!
+              {% else %}
+                Your motd is not present!
+              {% endif %}
       tags:
       - audit
     
@@ -46,7 +41,15 @@
           owner: root
           group: root
           mode: u=rw,g=r,o=r
-          tags:
-            - remediation
       tags:
-        - remediation 
+        - remediation
+     
+    - name: Remediation_alt
+      block: 
+      - name: We do not need motd
+        file:
+          path: /etc/motd
+          state: absent
+      tags:
+        - remediation_alt
+        - never 

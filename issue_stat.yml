@@ -1,17 +1,17 @@
-- name: "1.7.4 Ensure permissions on /etc/motd are configured (Automated)"
+- name: "1.7.5 Ensure permissions on /etc/issue are configured (Automated)"
   hosts: workstation
   become: true
   tasks:
     - name: Audit
       block:
-      - name: Gather info on MOTD file
+      - name: Gather info on issue file
         stat:
-          path: /etc/motd
+          path: /etc/issue
         register: res
 
-      - name: Fail if we do not find MOTD
+      - name: Fail if we do not find issue file
         fail: 
-          msg: MOTD not present!
+          msg: issue file not present!
         when: not res.stat.exists
 
       - name: Fail if permissions are incorrect
@@ -24,9 +24,9 @@
             msg: |
               Audit found following:
               {% if res.stat.exists %}
-                Your motd permissions are not compliant!
+                Your issue permissions are not compliant!
               {% else %}
-                Your motd is not present!
+                Your issue is not present!
               {% endif %}
       tags:
       - audit
@@ -35,11 +35,11 @@
       block:
       - name: Warn if the file is not present
         debug:
-          msg: Your motd is not present!
+          msg: Your issue is not present!
         when: not res.stat.exists
       - name: Set compliant permissions
         file:
-          path: /etc/motd
+          path: /etc/issue
           owner: root
           group: root
           mode: u=rw,g=r,o=r

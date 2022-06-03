@@ -1,0 +1,45 @@
+- name: "1.7.3 Ensure remote login warning banner is configured properly (Automated)"
+  hosts: workstation
+  become: true
+  tasks:
+    - name: Audit
+      block:
+      - name: Check issue file
+        stat:
+          path: /etc/issue.net
+        register: res
+
+      - name: Fail if we do not find issue
+        fail: 
+          msg: issue not present!
+        when: not res.stat.exists
+
+      - name: Fail if contents are invalid
+        command: >
+          grep -E -i "(\\\v|\\\r|\\\m|\\\s|$(grep '^ID=' /etc/os-release | cut -d= -f2 | sed -e 's/\"//g'))" /etc/issue.net
+        register: issue_c
+        failed_when: issue_c.stdout != ""
+      
+      rescue:
+        - debug:
+            msg: |
+              Audit found following:
+              {% if res.stat.exists %}
+                Your issue contents are not compliant!
+              {% else %}
+                Your issue is not present!
+              {% endif %}
+      tags:
+      - audit
+    
+    - name: Remediation
+      block: 
+      - name: Set copmpliant  file
+        template:
+          src: issue.j2
+          dest: /etc/issue.net
+          owner: root
+          group: root
+          mode: u=rw,g=r,o=r
+      tags:
+        - remediation
