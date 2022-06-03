@@ -1,5 +1,0 @@
-- name: set compliant banners
-  hosts: workstation
-  roles:
-    - secure_banners
-  become: true
