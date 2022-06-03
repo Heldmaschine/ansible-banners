@@ -1,0 +1,45 @@
+- name: "1.7.4 Ensure permissions on /etc/motd are configured (Automated)"
+  hosts: workstation
+  become: true
+  tasks:
+    - name: Audit
+      block:
+      - name: Check MOTD file
+        stat:
+          path: /etc/motd
+        register: res
+        tags: 
+          - audit
+          - permissions
+
+      - name: Warn if we do not find MOTD
+        debug: 
+          msg: MOTD not present!
+        when: not res.stat.exists
+
+      - name: Warn if permissions are incorrect
+        debug:
+          msg: "Permissions are not compliant, they are: mode={{res.stat['mode']}, gid={{res.stat['gid']}}, uid={{res.stat['uid']}"
+        when: (res.stat['mode']!="0644") or (res.stat['gid']!=0) or (res.stat['uid']!=0)
+        tags:
+          - audit
+      rescue:
+        - debug:
+            msg: "Rescue triggered with {{res}}"
+      tags:
+      - audit
+    
+    - name: Remediation
+      block:
+      tags:
+        - remediation  
+      - name: Set compliant permissions
+        file:
+          path: /etc/motd
+          owner: root
+          group: root
+          mode: u=rw,g=r,o=r
+        when: (res.stat['mode']!="0644") or (res.stat['gid']!=0) or (res.stat['uid']!=0)
+        tags:
+          - remediation
+          - permissions
